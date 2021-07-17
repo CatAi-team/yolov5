@@ -48,7 +48,8 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
         line_thickness=3,  # bounding box thickness (pixels)
         hide_labels=False,  # hide labels
         hide_conf=False,  # hide confidences
-        half=False,  # use FP16 half-precision inference
+        half=False,  # use FP16 half-precision inference,
+        save_json=False
         ):
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
@@ -213,6 +214,7 @@ def parse_opt():
     parser.add_argument('--hide-labels', default=False, action='store_true', help='hide labels')
     parser.add_argument('--hide-conf', default=False, action='store_true', help='hide confidences')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
+    parser.add_argument('--save-json', action='store-true', help='show results to *.json')
     opt = parser.parse_args()
     return opt
 
@@ -221,6 +223,7 @@ def main(opt):
     print(colorstr('detect: ') + ', '.join(f'{k}={v}' for k, v in vars(opt).items()))
     check_requirements(exclude=('tensorboard', 'thop'))
     run(**vars(opt))
+
 
 
 if __name__ == "__main__":
