@@ -25,7 +25,7 @@ from utils.torch_utils import select_device, load_classifier, time_synchronized
 
 import json
 from json import JSONEncoder
-
+from collections import ChainMap
 
 """class JsonEncoder(JSONEncoder):
     def default(self, o):
@@ -272,6 +272,11 @@ def run_detect(weights='yolov5s.pt',  # model.pt path(s)
                 f.write(a.toJSON())"""
             #f.write(str([o.toJSON() for o in detection_group_list]))
             wlist = {"frame_list": jdict}
+            #wlist = dict(zip(jdict))
+            #wlist = dict(ChainMap(jdict))
+            #wlist = {item for item in jdict}
+            #wlist = {jdict}
+            #wlist = dict(jdict)
             json.dump(wlist, f, indent=4)
 
     if save_txt or save_img:
