@@ -24,58 +24,6 @@ from utils.plots import colors, plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 
 import json
-from json import JSONEncoder
-from collections import ChainMap
-
-"""class JsonEncoder(JSONEncoder):
-    def default(self, o):
-        return o.__dict__
-
-
-def toJSON(object):
-    return json.dumps(object, default=lambda o: o.__dict__,
-                      sort_keys=True, indent=4)
-def obj_dict(obj):
-    return obj.__dict__
-
-class coordinate:
-    def __init__(self, x=0, y=0):
-        self.x = x,
-        self.y = y
-    def dump(self):
-        return {"x": self.x, "y": self.y}
-
-class sinirlayici_kutu:
-    def __init__(self, ust_sol, alt_sag):
-        self.ust_sol = ust_sol
-        self.alt_sag = alt_sag
-
-    def dump(self):
-        return {"ust_sol": self.ust_sol.dump(), "alt_sag": self.alt_sag.dump()}
-
-class DetectedObject:
-    def __init__(self, sinif, inis_durumu, sinirlayici_kutu):
-        self.sinif = sinif,
-        self.inis_durumu = inis_durumu,
-        self.sinirlayici_kutu = sinirlayici_kutu
-    def dump(self):
-        return {"sinif": self.sinif, "inis_durumu": str(self.inis_durumu), "sinirlayici_kutu": self.sinirlayici_kutu.dump()}
-
-class DetectionGroup:
-    def __init__(self, frame_id):
-        self.frame_id = frame_id
-        self.nesneler = []  # DetectedObject List
-
-    def add_detected_object(self, d_object):
-        self.nesneler.append(d_object)
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,indent=4)
-
-    def dump(self):
-        return {"frame_id": self.frame_id, "nesneler": [do.dump() for do in self.nesneler]}
-
-"""
 
 @torch.no_grad()
 def run_detect(weights='yolov5s.pt',  # model.pt path(s)
@@ -196,7 +144,6 @@ def run_detect(weights='yolov5s.pt',  # model.pt path(s)
 
                 if save_json:
                     detection_group = []
-                    #detection_group = DetectionGroup(p.stem if dataset.mode == "image" else frame)
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
                     if save_txt:  # Write to file
@@ -208,9 +155,6 @@ def run_detect(weights='yolov5s.pt',  # model.pt path(s)
                         height, width, *_ = im0.shape
                         inis_durumu = -1
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()
-                        """ust_coordinate = coordinate(round((xywh[0] - xywh[2] / 2) * width), round((xywh[1] - xywh[3] / 2) * height))
-                        alt_coordinate = coordinate(round((xywh[0] + xywh[2] / 2) * width), round((xywh[1] + xywh[3] / 2) * height))
-                        detected_object = DetectedObject(int(cls), inis_durumu, sinirlayici_kutu(ust_coordinate, alt_coordinate))"""
                         detection_group.append({"sinif": int(cls),
                                                 "inis_durumu": inis_durumu,
                                                 "sinirlayici_kutu": {
@@ -224,7 +168,7 @@ def run_detect(weights='yolov5s.pt',  # model.pt path(s)
                                                     }
                                                 }
                                                 })
-                        #detection_group.add_detected_object(detected_object)
+
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
@@ -237,7 +181,7 @@ def run_detect(weights='yolov5s.pt',  # model.pt path(s)
                         "nesneler": detection_group
                     }
                     jdict.append(detection_group_list)
-                    #detection_group_list.append(detection_group)
+
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({t2 - t1:.3f}s)')
@@ -268,15 +212,7 @@ def run_detect(weights='yolov5s.pt',  # model.pt path(s)
 
     if save_json:
         with open(f"{save_dir}/labels/{p.stem}.json", "w") as f:
-            """for a in detection_group_list:
-                f.write(a.toJSON())"""
-            #f.write(str([o.toJSON() for o in detection_group_list]))
             wlist = {"frame_list": jdict}
-            #wlist = dict(zip(jdict))
-            #wlist = dict(ChainMap(jdict))
-            #wlist = {item for item in jdict}
-            #wlist = {jdict}
-            #wlist = dict(jdict)
             json.dump(wlist, f, indent=4)
 
     if save_txt or save_img:
